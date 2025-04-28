@@ -20,6 +20,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
           # registry-url: https://npm.pkg.github.com/
           # scope: '@loxehate' 
+      - name: 读取 package.json 里的 version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./frontend/package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 安装依赖
         run: |
@@ -29,20 +34,16 @@ jobs:
 
       - name: 打包生成 npm 包
         run: |
-          tar -zcvf node.tar.gz ./frontend
+          tar -zcvf frontend-v${{ env.VERSION }}.tar.gz ./frontend
 
-      - name: 读取 package.json 里的 version
-        id: get_version
-        run: |
-          VERSION=$(node -p "require('./frontend/package.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
 
       - name: 生成 GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          name: node v${{ env.VERSION }}
+          name: frontend v${{ env.VERSION }}
           tag_name: v${{ env.VERSION }}
           files: |
-            ./node.tar.gz
+            ./frontend-v${{ env.VERSION }}.tar.gz
           token: ${{ secrets.Release_TOKEN }}
