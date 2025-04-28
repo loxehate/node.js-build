@@ -23,20 +23,26 @@ jobs:
 
       - name: 安装依赖
         run: |
-          cd build
+          cd frontend
           npm install -g pnpm
           pnpm install
 
       - name: 打包生成 npm 包
         run: |
-          tar -zcvf node.tar.gz ./build
+          tar -zcvf node.tar.gz ./frontend
+
+      - name: 读取 package.json 里的 version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: 生成 GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ github.sha }}
-          tag_name: ${{ github.sha }}
+          name: node v${{ env.VERSION }}
+          tag_name: v${{ env.VERSION }}
           files: |
             ./node.tar.gz
           token: ${{ secrets.Release_TOKEN }}
