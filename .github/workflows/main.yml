@@ -39,3 +39,4 @@ jobs:
           tag_name: ${{ github.sha }}
           files: |
             ./node.tar.gz
+          token: ${{ secrets.Release_TOKEN }}
